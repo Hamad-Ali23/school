@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart School Management System</title>
+    <!-- Google Fonts: Poppins & Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        royalBlue: '#2457D6',
+                        blueTint: '#F4F7FC',
+                        blueHover: '#1B45B3',
+                        blueBorder: '#D2E0FB',
+                        blueSoft: '#E8EFFD'
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif'],
+                        nunito: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #F4F7FC;
+            color: #1E293B;
+        }
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Poppins', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F4F7FC;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2457D6;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-blueTint min-h-screen flex flex-col font-nunito">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- AUTHENTICATION CONTAINER -->
+    <div id="auth-wrapper" class="flex-1 flex items-center justify-center p-4 my-8">
+        <div class="bg-white rounded-3xl shadow-xl border border-blueBorder w-full max-w-xl overflow-hidden transition-all duration-300">
+            <!-- Header Banner -->
+            <div class="bg-royalBlue text-white p-8 text-center relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-36 h-36 bg-white opacity-10 rounded-full pointer-events-none"></div>
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white text-royalBlue rounded-2xl mb-3 shadow-md">
+                    <i data-lucide="graduation-cap" class="w-8 h-8"></i>
+                </div>
+                <h1 class="text-2xl font-bold font-poppins tracking-wide">Smart School System</h1>
+                <p class="text-blue-100 text-sm mt-1">Classroom & Institutional Portal (Grades 1–12)</p>
+            </div>
+
+            <!-- Demo Quick Login Chips -->
+            <div class="bg-blueTint p-6 border-b border-blueBorder">
+                <p class="text-xs font-bold text-royalBlue uppercase tracking-wider mb-3 text-center">One-Click Demo Login</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button onclick="fillQuickLogin('Admin', 'admin@school.com', 'admin123')" class="p-2.5 bg-white border border-blueBorder hover:bg-royalBlue hover:text-white rounded-xl text-xs font-bold text-royalBlue transition-all shadow-sm flex flex-col items-center justify-center text-center">
+                        <i data-lucide="shield-check" class="w-4 h-4 mb-1"></i>
+                        <span>Admin</span>
+                    </button>
+                    <button onclick="fillQuickLogin('Teacher', 'TCH-101', 'teacher123')" class="p-2.5 bg-white border border-blueBorder hover:bg-royalBlue hover:text-white rounded-xl text-xs font-bold text-royalBlue transition-all shadow-sm flex flex-col items-center justify-center text-center">
+                        <i data-lucide="user-check" class="w-4 h-4 mb-1"></i>
+                        <span>Teacher 1 (Assigned)</span>
+                    </button>
+                    <button onclick="fillQuickLogin('Student', 'STD-101', 'student123')" class="p-2.5 bg-white border border-blueBorder hover:bg-royalBlue hover:text-white rounded-xl text-xs font-bold text-royalBlue transition-all shadow-sm flex flex-col items-center justify-center text-center">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 mb-1"></i>
+                        <span>Student (Ali Raza)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="p-8 space-y-5">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-royalBlue mb-1.5">User Role</label>
+                    <select id="login-role" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-royalBlue font-semibold focus:outline-none focus:ring-2 focus:ring-royalBlue transition-all text-sm">
+                        <option value="Admin">Administrator</option>
+                        <option value="Teacher">Teacher</option>
+                        <option value="Student">Student</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-royalBlue mb-1.5">User ID / Email</label>
+                    <input type="text" id="login-identifier" required placeholder="e.g. admin@school.com or TCH-101" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-royalBlue mb-1.5">Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
+                </div>
+
+                <button type="submit" class="w-full py-3.5 px-6 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 text-sm">
+                    <i data-lucide="log-in" class="w-5 h-5"></i>
+                    <span>Login to Dashboard</span>
+                </button>
+
+                <div class="bg-blueSoft p-4 rounded-xl border border-blueBorder text-xs text-royalBlue text-center leading-relaxed">
+                    <span class="font-bold">Demonstration Note:</span> Credentials are authenticated locally using sample data stored in browser memory.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-wrapper" class="hidden flex-1 flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-blueBorder flex flex-col transition-all duration-300 z-30 fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0">
+            <div class="h-20 flex items-center px-6 border-b border-blueBorder bg-blueTint">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-royalBlue text-white rounded-xl flex items-center justify-center shadow-md">
+                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold font-poppins text-royalBlue text-base leading-tight">SmartSchool</h2>
+                        <span class="text-xs text-royalBlue font-semibold opacity-75">12th IT Project</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav id="sidebar-nav" class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                <!-- Injected via JavaScript -->
+            </nav>
+
+            <div class="p-4 border-t border-blueBorder bg-blueTint">
+                <button onclick="logout()" class="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-white border border-blueBorder text-royalBlue hover:bg-royalBlue hover:text-white rounded-xl font-bold text-sm transition-all shadow-sm">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-blueTint">
+            
+            <!-- TOP NAVBAR -->
+            <header class="h-20 bg-white border-b border-blueBorder flex items-center justify-between px-6 z-20">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-blueTint text-royalBlue hover:bg-royalBlue hover:text-white transition-all">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <h1 id="page-title" class="text-xl lg:text-2xl font-bold font-poppins text-royalBlue">Dashboard</h1>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="hidden sm:flex flex-col text-right">
+                        <span id="user-display-name" class="font-bold text-sm text-royalBlue">Administrator</span>
+                        <span id="user-display-role" class="text-xs text-slate-500">Admin Role</span>
+                    </div>
+                    <div class="w-10 h-10 bg-royalBlue text-white rounded-xl flex items-center justify-center font-bold shadow-md">
+                        <span id="user-avatar-initial">A</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW CONTAINER -->
+            <main class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-6">
+
+                <!-- USER PROFILE BANNER -->
+                <div id="user-profile-banner" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-blueBorder">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-14 h-14 bg-royalBlue text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-md">
+                                <i data-lucide="user" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <h2 id="banner-name" class="text-xl font-bold font-poppins text-royalBlue">Full Name</h2>
+                                <p id="banner-sub" class="text-xs font-semibold text-slate-500 mt-0.5">Father Name: - | CNIC: -</p>
+                            </div>
+                        </div>
+                        <div id="banner-details-chips" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- 1. DASHBOARD VIEW -->
+                <section id="view-dashboard" class="space-y-6">
+                    <div id="admin-stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blueTint text-royalBlue rounded-xl flex items-center justify-center">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Students</p>
+                                <h3 id="stat-total-students" class="text-2xl font-bold font-poppins text-royalBlue">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blueTint text-royalBlue rounded-xl flex items-center justify-center">
+                                <i data-lucide="user-check" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Teachers</p>
+                                <h3 id="stat-total-teachers" class="text-2xl font-bold font-poppins text-royalBlue">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blueTint text-royalBlue rounded-xl flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Present Today</p>
+                                <h3 id="stat-present-today" class="text-2xl font-bold font-poppins text-royalBlue">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blueTint text-royalBlue rounded-xl flex items-center justify-center">
+                                <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Attendance Rate</p>
+                                <h3 id="stat-attendance-pct" class="text-2xl font-bold font-poppins text-royalBlue">0%</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Announcements Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-blueBorder p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-blueBorder pb-4">
+                            <h2 class="text-lg font-bold font-poppins text-royalBlue flex items-center space-x-2">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span>School Notice Board & Announcements</span>
+                            </h2>
+                            <button id="btn-add-announcement" onclick="openAnnouncementModal()" class="hidden px-4 py-2 bg-royalBlue hover:bg-blueHover text-white rounded-xl font-bold text-xs shadow-sm transition-all flex items-center space-x-1.5">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>New Notice</span>
+                            </button>
+                        </div>
+                        <div id="announcements-feed" class="space-y-3"></div>
+                    </div>
+                </section>
+
+                <!-- 2. STUDENT MANAGEMENT VIEW -->
+                <section id="view-students" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="w-full md:w-96 relative">
+                            <i data-lucide="search" class="w-5 h-5 text-royalBlue absolute left-4 top-3.5"></i>
+                            <input type="text" id="student-search" oninput="renderStudents()" placeholder="Search by name, roll, grade or CNIC..." class="w-full pl-12 pr-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
+                        </div>
+                        <button onclick="openStudentModal()" class="w-full md:w-auto px-6 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
+                            <span>Add New Student</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-blueBorder overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blueTint text-royalBlue text-xs uppercase font-poppins">
+                                        <th class="p-4">Roll / ID</th>
+                                        <th class="p-4">Student Name</th>
+                                        <th class="p-4">Father Name</th>
+                                        <th class="p-4">CNIC / B-Form</th>
+                                        <th class="p-4">Grade</th>
+                                        <th class="p-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-tbody" class="divide-y divide-blueBorder text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. TEACHER MANAGEMENT VIEW -->
+                <section id="view-teachers" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="w-full md:w-96 relative">
+                            <i data-lucide="search" class="w-5 h-5 text-royalBlue absolute left-4 top-3.5"></i>
+                            <input type="text" id="teacher-search" oninput="renderTeachers()" placeholder="Search teachers by name or ID..." class="w-full pl-12 pr-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
+                        </div>
+                        <button onclick="openTeacherModal()" class="w-full md:w-auto px-6 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
+                            <span>Add New Teacher</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-blueBorder overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blueTint text-royalBlue text-xs uppercase font-poppins">
+                                        <th class="p-4">Teacher ID</th>
+                                        <th class="p-4">Full Name</th>
+                                        <th class="p-4">Father Name</th>
+                                        <th class="p-4">CNIC Number</th>
+                                        <th class="p-4">Assigned Subjects</th>
+                                        <th class="p-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teachers-tbody" class="divide-y divide-blueBorder text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. SUBJECT & CLASS ASSIGNMENT MODULE -->
+                <section id="view-assignments" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder space-y-6">
+                        <div class="border-b border-blueBorder pb-4">
+                            <h2 class="text-xl font-bold font-poppins text-royalBlue flex items-center space-x-2">
+                                <i data-lucide="book-open-check" class="w-6 h-6"></i>
+                                <span>Subject & Class Assignment Portal</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-1">Assign subjects to teachers with real-time conflict checking and ticket status indicators.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="space-y-4">
+                                <label class="block text-xs font-bold uppercase text-royalBlue">1. Select Target Teacher</label>
+                                <select id="assign-teacher-id" onchange="onAssignTeacherChange()" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-royalBlue font-semibold focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm"></select>
+
+                                <div class="bg-blueTint p-4 rounded-xl border border-blueBorder space-y-2">
+                                    <label class="block text-xs font-bold uppercase text-royalBlue">Designate as Class Teacher</label>
+                                    <select id="assign-class-teacher-of" class="w-full px-4 py-2.5 bg-white border border-blueBorder rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-royalBlue">
+                                        <option value="">None (Subject Teacher Only)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <label class="block text-xs font-bold uppercase text-royalBlue">2. Select Class Range / Grade</label>
+                                <select id="assign-class-range" onchange="renderSubjectConflictGrid()" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-royalBlue font-semibold focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
+                                    <option value="Primary (Grade 1-5)">Primary Range (Grades 1 to 5)</option>
+                                    <option value="Middle (Grade 6-8)">Middle Range (Grades 6 to 8)</option>
+                                    <option value="Matric (Grade 9-10)">Matric Range (Grades 9 & 10)</option>
+                                    <option value="Inter (Grade 11-12)">Inter / HSSC Range (Grades 11 & 12)</option>
+                                </select>
+
+                                <div class="space-y-2">
+                                    <label class="block text-xs font-bold uppercase text-royalBlue">Target Grade Class</label>
+                                    <select id="assign-target-grade" onchange="renderSubjectConflictGrid()" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-royalBlue font-semibold focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm"></select>
+                                </div>
+                            </div>
+
+                            <div class="bg-blueTint p-6 rounded-2xl border border-blueBorder flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold font-poppins text-royalBlue">Assignment Guidelines</h3>
+                                    <ul class="text-xs text-slate-600 mt-2 space-y-2 list-disc pl-4">
+                                        <li>Subjects marked <span class="font-bold text-royalBlue">[UNASSIGNED]</span> are ready for allocation.</li>
+                                        <li>Subjects marked <span class="font-bold text-royalBlue">[ASSIGNED]</span> show the current assigned teacher[cite: 1, 2].</li>
+                                    </ul>
+                                </div>
+                                <button onclick="saveSubjectAssignments()" class="w-full py-3 px-6 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm mt-4">
+                                    <i data-lucide="save" class="w-5 h-5"></i>
+                                    <span>Save & Update Assignments</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-blueBorder pt-6 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-bold font-poppins text-royalBlue flex items-center space-x-2">
+                                    <i data-lucide="ticket" class="w-5 h-5"></i>
+                                    <span>Subject Status & Ticket Indicators for Target Class</span>
+                                </h3>
+                                <span id="current-class-badge" class="px-3 py-1 bg-royalBlue text-white font-bold text-xs rounded-full">Grade 12</span>
+                            </div>
+
+                            <div id="subject-tickets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. ATTENDANCE MANAGEMENT VIEW -->
+                <section id="view-attendance" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold font-poppins text-royalBlue">Daily Attendance Register</h2>
+                            <p class="text-xs text-slate-500">Record attendance for your assigned class and students[cite: 1, 2].</p>
+                        </div>
+                        <div class="flex items-center space-x-3 w-full sm:w-auto">
+                            <input type="date" id="attendance-date" onchange="loadAttendanceRegister()" class="px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-royalBlue font-semibold focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
+                            <button onclick="saveAttendance()" class="px-6 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2 text-sm">
+                                <i data-lucide="save" class="w-5 h-5"></i>
+                                <span>Save Register</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-blueBorder overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blueTint text-royalBlue text-xs uppercase font-poppins">
+                                        <th class="p-4">Roll No</th>
+                                        <th class="p-4">Student Name</th>
+                                        <th class="p-4">Grade Class</th>
+                                        <th class="p-4 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-tbody" class="divide-y divide-blueBorder text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. MARKS AND RESULTS VIEW -->
+                <section id="view-marks" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold font-poppins text-royalBlue">Examination & Marks Entry</h2>
+                            <p class="text-xs text-slate-500">Add examination grades for assigned subjects and classes[cite: 1, 2].</p>
+                        </div>
+                        <button id="btn-add-mark" onclick="openMarkModal()" class="w-full md:w-auto px-6 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            <span>Add Exam Result</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-blueBorder overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blueTint text-royalBlue text-xs uppercase font-poppins">
+                                        <th class="p-4">Student Name</th>
+                                        <th class="p-4">Subject</th>
+                                        <th class="p-4">Exam Title</th>
+                                        <th class="p-4">Obtained / Total</th>
+                                        <th class="p-4">Percentage</th>
+                                        <th class="p-4">Grade Ticket</th>
+                                        <th class="p-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="marks-tbody" class="divide-y divide-blueBorder text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. REPORTS & EXPORT VIEW -->
+                <section id="view-reports" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold font-poppins text-royalBlue">Institutional Reports</h2>
+                            <p class="text-xs text-slate-500">Print or export official student records and performance statistics[cite: 1, 2].</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="printReport()" class="px-5 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2 text-sm">
+                                <i data-lucide="printer" class="w-5 h-5"></i>
+                                <span>Print Official Report</span>
+                            </button>
+                            <button onclick="exportCSV()" class="px-5 py-3 bg-white text-royalBlue border border-blueBorder hover:bg-blueTint font-bold rounded-xl shadow-sm transition-all flex items-center space-x-2 text-sm">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                                <span>Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="printable-report-area" class="bg-white p-8 rounded-2xl shadow-sm border border-blueBorder space-y-6">
+                        <div class="text-center border-b border-blueBorder pb-6">
+                            <h2 class="text-2xl font-bold font-poppins text-royalBlue">Smart School Management System</h2>
+                            <p class="text-xs text-slate-500 mt-1">Official Institutional Report (Grades 1 through 12)</p>
+                            <p id="report-timestamp" class="text-xs text-royalBlue font-semibold mt-2"></p>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold font-poppins text-royalBlue mb-4">Enrolled Student Register</h3>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-blueTint text-royalBlue text-xs uppercase font-poppins">
+                                        <th class="p-3">Roll No</th>
+                                        <th class="p-3">Name</th>
+                                        <th class="p-3">Father Name</th>
+                                        <th class="p-3">CNIC</th>
+                                        <th class="p-3">Grade Class</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-students-tbody" class="divide-y divide-blueBorder text-xs"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL DIALOGS -->
+    <div id="announcement-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-blueBorder w-full max-w-lg overflow-hidden">
+            <div class="bg-royalBlue text-white p-6 flex items-center justify-between">
+                <h3 class="text-lg font-bold font-poppins">Post New School Notice</h3>
+                <button onclick="closeAnnouncementModal()" class="text-white hover:bg-blueHover p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form onsubmit="handleAnnouncementSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-royalBlue mb-1">Notice Title</label>
+                    <input type="text" id="announce-title" required placeholder="e.g. Midterm Schedule" class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-royalBlue mb-1">Announcement Content</label>
+                    <textarea id="announce-body" required rows="4" placeholder="Details..." class="w-full px-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 text-sm"></textarea>
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeAnnouncementModal()" class="px-5 py-2.5 bg-blueTint text-royalBlue font-bold rounded-xl text-sm">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 bg-royalBlue text-white font-bold rounded-xl text-sm shadow-md">Post Notice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="student-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-blueBorder w-full max-w-lg overflow-hidden">
+            <div class="bg-royalBlue text-white p-6 flex items-center justify-between">
+                <h3 class="text-lg font-bold font-poppins">Student Record</h3>
+                <button onclick="closeStudentModal()" class="text-white hover:bg-blueHover p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="student-form" onsubmit="handleStudentSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="student-edit-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Roll No</label><input type="text" id="student-roll" required placeholder="STD-101" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Grade</label><select id="student-grade" required class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></select></div>
+                </div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Full Name</label><input type="text" id="student-name" required placeholder="Ali Raza" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Father Name</label><input type="text" id="student-father" required placeholder="Muhammad Raza" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">CNIC</label><input type="text" id="student-cnic" required placeholder="42101-9876543-2" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Password</label><input type="text" id="student-password" required value="student123" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div class="pt-4 flex justify-end space-x-3"><button type="button" onclick="closeStudentModal()" class="px-5 py-2.5 bg-blueTint text-royalBlue font-bold rounded-xl text-sm">Cancel</button><button type="submit" class="px-6 py-2.5 bg-royalBlue text-white font-bold rounded-xl text-sm shadow-md">Save</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="teacher-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-blueBorder w-full max-w-lg overflow-hidden">
+            <div class="bg-royalBlue text-white p-6 flex items-center justify-between">
+                <h3 class="text-lg font-bold font-poppins">Teacher Record</h3>
+                <button onclick="closeTeacherModal()" class="text-white hover:bg-blueHover p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="teacher-form" onsubmit="handleTeacherSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="teacher-edit-id">
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Teacher ID</label><input type="text" id="teacher-id" required placeholder="TCH-103" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Full Name</label><input type="text" id="teacher-name" required placeholder="Mr. Tariq Ahmed" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Father Name</label><input type="text" id="teacher-father" required placeholder="Ghulam Hussain" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">CNIC</label><input type="text" id="teacher-cnic" required placeholder="42101-1234567-1" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Password</label><input type="text" id="teacher-password" required value="teacher123" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div class="pt-4 flex justify-end space-x-3"><button type="button" onclick="closeTeacherModal()" class="px-5 py-2.5 bg-blueTint text-royalBlue font-bold rounded-xl text-sm">Cancel</button><button type="submit" class="px-6 py-2.5 bg-royalBlue text-white font-bold rounded-xl text-sm shadow-md">Save</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="mark-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-blueBorder w-full max-w-lg overflow-hidden">
+            <div class="bg-royalBlue text-white p-6 flex items-center justify-between">
+                <h3 class="text-lg font-bold font-poppins">Exam Result</h3>
+                <button onclick="closeMarkModal()" class="text-white hover:bg-blueHover p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="mark-form" onsubmit="handleMarkSubmit(event)" class="p-6 space-y-4">
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Student</label><select id="mark-student-id" required class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></select></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Subject</label><select id="mark-subject" required class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></select></div>
+                <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Exam Title</label><input type="text" id="mark-exam" required placeholder="Midterm" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Obtained</label><input type="number" id="mark-obtained" required placeholder="88" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                    <div><label class="block text-xs font-bold uppercase text-royalBlue mb-1">Total</label><input type="number" id="mark-total" required value="100" class="w-full px-4 py-2.5 bg-blueTint border border-blueBorder rounded-xl text-sm"></div>
+                </div>
+                <div class="pt-4 flex justify-end space-x-3"><button type="button" onclick="closeMarkModal()" class="px-5 py-2.5 bg-blueTint text-royalBlue font-bold rounded-xl text-sm">Cancel</button><button type="submit" class="px-6 py-2.5 bg-royalBlue text-white font-bold rounded-xl text-sm shadow-md">Save Result</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS ENGINE SCRIPT -->
+    <script>
+        const RANGE_SUBJECTS = {
+            "Primary (Grade 1-5)": ["Sindhi", "English", "Urdu", "Mathematics", "General Science", "Islamic Studies", "Social Studies"],
+            "Middle (Grade 6-8)": ["Sindhi", "English", "Urdu", "Mathematics", "General Science", "Computer Science", "Islamic Studies"],
+            "Matric (Grade 9-10)": ["Sindhi", "English", "Urdu", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science"],
+            "Inter (Grade 11-12)": ["Sindhi", "English", "Computer Science", "Physics", "Chemistry", "Mathematics", "Pakistan Studies"]
+        };
+
+        let students = JSON.parse(localStorage.getItem('smartschool_v2_students')) || [
+            { id: '1', roll: 'STD-101', name: 'Ali Raza', father: 'Muhammad Raza', cnic: '42101-9876543-2', grade: 'Grade 12', password: 'student123' }
+        ];
+
+        let teachers = JSON.parse(localStorage.getItem('smartschool_v2_teachers')) || [
+            { id: '1', teacherId: 'TCH-101', name: 'Mr. Tariq Ahmed', father: 'Ghulam Hussain', cnic: '42101-1234567-1', password: 'teacher123', classTeacherOf: 'Grade 12' }
+        ];
+
+        let assignments = JSON.parse(localStorage.getItem('smartschool_v2_assignments')) || [
+            { teacherId: '1', grade: 'Grade 12', subject: 'Computer Science' }
+        ];
+
+        let announcements = JSON.parse(localStorage.getItem('smartschool_v2_announcements')) || [
+            { id: '1', title: 'Welcome to Smart School System', body: 'Portal is live for Grades 1 through 12[cite: 1, 2].', date: 'Today' }
+        ];
+
+        let attendanceRecords = JSON.parse(localStorage.getItem('smartschool_v2_attendance')) || [];
+        let marksRecords = JSON.parse(localStorage.getItem('smartschool_v2_marks')) || [];
+
+        function saveData() {
+            localStorage.setItem('smartschool_v2_students', JSON.stringify(students));
+            localStorage.setItem('smartschool_v2_teachers', JSON.stringify(teachers));
+            localStorage.setItem('smartschool_v2_assignments', JSON.stringify(assignments));
+            localStorage.setItem('smartschool_v2_announcements', JSON.stringify(announcements));
+            localStorage.setItem('smartschool_v2_attendance', JSON.stringify(attendanceRecords));
+            localStorage.setItem('smartschool_v2_marks', JSON.stringify(marksRecords));
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-white border border-blueBorder text-royalBlue px-6 py-4 rounded-xl shadow-xl font-bold text-sm flex items-center space-x-3 pointer-events-auto transition-all';
+            toast.innerHTML = `<i data-lucide="info" class="w-5 h-5 text-royalBlue"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function fillQuickLogin(role, identifier, password) {
+            document.getElementById('login-role').value = role;
+            document.getElementById('login-identifier').value = identifier;
+            document.getElementById('login-password').value = password;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const role = document.getElementById('login-role').value;
+            const identifier = document.getElementById('login-identifier').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            let authUser = null;
+
+            if (role === 'Admin' && identifier === 'admin@school.com' && password === 'admin123') {
+                authUser = { role: 'Admin', name: 'System Administrator', email: identifier };
+            } else if (role === 'Teacher') {
+                const found = teachers.find(t => (t.teacherId === identifier || t.name === identifier) && t.password === password);
+                if (found) authUser = { role: 'Teacher', id: found.id, name: found.name, father: found.father, cnic: found.cnic };
+            } else if (role === 'Student') {
+                const found = students.find(s => (s.roll === identifier || s.name === identifier) && s.password === password);
+                if (found) authUser = { role: 'Student', id: found.id, name: found.name, father: found.father, cnic: found.cnic, roll: found.roll, grade: found.grade };
+            }
+
+            if (authUser) {
+                sessionStorage.setItem('smartschool_v2_session', JSON.stringify(authUser));
+                initAppSession();
+                showToast(`Welcome ${authUser.name}!`);
+            } else {
+                showToast('Invalid Login Credentials.');
+            }
+        });
+
+        function logout() {
+            sessionStorage.removeItem('smartschool_v2_session');
+            initAppSession();
+            showToast('Logged out.');
+        }
+
+        function initAppSession() {
+            const session = JSON.parse(sessionStorage.getItem('smartschool_v2_session'));
+            if (session) {
+                document.getElementById('auth-wrapper').classList.add('hidden');
+                document.getElementById('app-wrapper').classList.remove('hidden');
+                document.getElementById('user-display-name').textContent = session.name;
+                document.getElementById('user-display-role').textContent = `${session.role} Role`;
+                document.getElementById('user-avatar-initial').textContent = session.name.charAt(0).toUpperCase();
+                renderSidebarNav(session.role);
+                setupProfileBanner(session);
+                document.getElementById('attendance-date').value = new Date().toISOString().split('T')[0];
+                switchTab('dashboard');
+            } else {
+                document.getElementById('auth-wrapper').classList.remove('hidden');
+                document.getElementById('app-wrapper').classList.add('hidden');
+            }
+            populateGradeDropdowns();
+            lucide.createIcons();
+        }
+
+        function setupProfileBanner(session) {
+            const banner = document.getElementById('user-profile-banner');
+            if (session.role === 'Admin') { banner.classList.add('hidden'); return; }
+            banner.classList.remove('hidden');
+            document.getElementById('banner-name').textContent = session.name;
+            document.getElementById('banner-sub').textContent = `Father: ${session.father || '-'} | CNIC: ${session.cnic || '-'}`;
+        }
+
+        function renderSidebarNav(role) {
+            const nav = document.getElementById('sidebar-nav');
+            nav.innerHTML = '';
+            const links = [{ id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' }];
+            if (role === 'Admin') {
+                links.push({ id: 'students', label: 'Student Management', icon: 'users' }, { id: 'teachers', label: 'Teacher Management', icon: 'user-check' }, { id: 'assignments', label: 'Subject Assignments', icon: 'book-open-check' }, { id: 'attendance', label: 'Attendance Register', icon: 'calendar-check' }, { id: 'marks', label: 'Marks & Results', icon: 'award' }, { id: 'reports', label: 'Reports & Export', icon: 'file-text' });
+            } else if (role === 'Teacher') {
+                links.push({ id: 'attendance', label: 'Mark Attendance', icon: 'calendar-check' }, { id: 'marks', label: 'Add Results', icon: 'award' });
+            } else if (role === 'Student') {
+                links.push({ id: 'attendance', label: 'My Attendance', icon: 'calendar-check' }, { id: 'marks', label: 'My Results', icon: 'award' });
+            }
+            links.forEach(l => {
+                nav.innerHTML += `<button onclick="switchTab('${l.id}')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold text-sm text-royalBlue hover:bg-blueTint" data-tab="${l.id}"><i data-lucide="${l.icon}" class="w-5 h-5"></i><span>${l.label}</span></button>`;
+            });
+            lucide.createIcons();
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+
+        function switchTab(tabId) {
+            ['dashboard', 'students', 'teachers', 'assignments', 'attendance', 'marks', 'reports'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('bg-royalBlue', 'text-white', 'shadow-md');
+                    btn.classList.remove('text-royalBlue', 'hover:bg-blueTint');
+                } else {
+                    btn.classList.remove('bg-royalBlue', 'text-white', 'shadow-md');
+                    btn.classList.add('text-royalBlue', 'hover:bg-blueTint');
+                }
+            });
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            if (tabId === 'dashboard') renderDashboard();
+            if (tabId === 'students') renderStudents();
+            if (tabId === 'teachers') renderTeachers();
+            if (tabId === 'assignments') renderAssignmentsModule();
+            if (tabId === 'attendance') loadAttendanceRegister();
+            if (tabId === 'marks') renderMarks();
+            if (tabId === 'reports') renderReports();
+            lucide.createIcons();
+        }
+
+        function renderDashboard() {
+            const session = JSON.parse(sessionStorage.getItem('smartschool_v2_session'));
+            document.getElementById('stat-total-students').textContent = students.length;
+            document.getElementById('stat-total-teachers').textContent = teachers.length;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayRecords = attendanceRecords.filter(r => r.date === todayStr);
+            const presentCount = todayRecords.filter(r => r.status === 'Present').length;
+            document.getElementById('stat-present-today').textContent = presentCount;
+            document.getElementById('stat-attendance-pct').textContent = todayRecords.length > 0 ? `${Math.round((presentCount / todayRecords.length) * 100)}%` : '0%';
+            
+            if (session.role === 'Admin' || session.role === 'Teacher') {
+                document.getElementById('btn-add-announcement').classList.remove('hidden');
+            }
+            document.getElementById('announcements-feed').innerHTML = announcements.map(a => `<div class="p-4 bg-blueTint rounded-xl border border-blueBorder"><h4 class="font-bold text-sm text-royalBlue">${a.title}</h4><p class="text-xs text-slate-600 mt-1">${a.body}</p></div>`).join('');
+        }
+
+        function openAnnouncementModal() { document.getElementById('announcement-modal').classList.remove('hidden'); document.getElementById('announcement-modal').classList.add('flex'); }
+        function closeAnnouncementModal() { document.getElementById('announcement-modal').classList.add('hidden'); document.getElementById('announcement-modal').classList.remove('flex'); }
+        function handleAnnouncementSubmit(e) {
+            e.preventDefault();
+            announcements.unshift({ id: Date.now().toString(), title: document.getElementById('announce-title').value, body: document.getElementById('announce-body').value, date: 'Today' });
+            saveData(); closeAnnouncementModal(); renderDashboard(); showToast('Notice posted!');
+        }
+
+        function renderAssignmentsModule() {
+            document.getElementById('assign-teacher-id').innerHTML = teachers.map(t => `<option value="${t.id}">${t.teacherId} - ${t.name}</option>`).join('');
+            document.getElementById('assign-class-teacher-of').innerHTML = '<option value="">None</option>' + Array.from({length: 12}, (_, i) => `<option value="Grade ${i+1}">Grade ${i+1}</option>`).join('');
+            renderTargetGradeOptions();
+        }
+
+        function renderTargetGradeOptions() {
+            const range = document.getElementById('assign-class-range').value;
+            const select = document.getElementById('assign-target-grade');
+            let start = 1, end = 5;
+            if (range.includes('6-8')) { start = 6; end = 8; }
+            if (range.includes('9-10')) { start = 9; end = 10; }
+            if (range.includes('11-12')) { start = 11; end = 12; }
+            select.innerHTML = Array.from({length: (end - start + 1)}, (_, i) => `<option value="Grade ${start + i}">Grade ${start + i}</option>`).join('');
+            renderSubjectConflictGrid();
+        }
+
+        function renderSubjectConflictGrid() {
+            const range = document.getElementById('assign-class-range').value;
+            const targetGrade = document.getElementById('assign-target-grade').value;
+            const selectedTeacherId = document.getElementById('assign-teacher-id').value;
+            document.getElementById('current-class-badge').textContent = targetGrade;
+            const subjects = RANGE_SUBJECTS[range] || [];
+            document.getElementById('subject-tickets-grid').innerHTML = subjects.map(subject => {
+                const existing = assignments.find(a => a.grade === targetGrade && a.subject === subject);
+                let status = '<span class="px-2 py-0.5 bg-blueTint text-royalBlue text-[10px] font-bold rounded">[UNASSIGNED]</span>';
+                let checked = false;
+                if (existing) {
+                    if (existing.teacherId === selectedTeacherId) checked = true;
+                    const tObj = teachers.find(t => t.id === existing.teacherId);
+                    status = `<span class="px-2 py-0.5 bg-royalBlue text-white text-[10px] font-bold rounded">[ASSIGNED: ${tObj ? tObj.name : ''}]</span>`;
+                }
+                return `<div class="p-4 rounded-xl border border-blueBorder bg-white flex justify-between items-center"><div><h4 class="font-bold text-sm text-royalBlue">${subject}</h4>${status}</div><input type="checkbox" id="chk-${subject.replace(/\s+/g, '')}" ${checked ? 'checked' : ''} class="w-4 h-4 text-royalBlue"></div>`;
+            }).join('');
+        }
+
+        function saveSubjectAssignments() {
+            const teacherId = document.getElementById('assign-teacher-id').value;
+            const targetGrade = document.getElementById('assign-target-grade').value;
+            const range = document.getElementById('assign-class-range').value;
+            const classTeacherOf = document.getElementById('assign-class-teacher-of').value;
+            teachers = teachers.map(t => t.id === teacherId ? {...t, classTeacherOf} : t);
+            RANGE_SUBJECTS[range].forEach(subject => {
+                const chk = document.getElementById(`chk-${subject.replace(/\s+/g, '')}`);
+                assignments = assignments.filter(a => !(a.grade === targetGrade && a.subject === subject));
+                if (chk && chk.checked) assignments.push({ teacherId, grade: targetGrade, subject });
+            });
+            saveData(); showToast('Assignments saved!');
+        }
+
+        function renderStudents() {
+            const query = document.getElementById('student-search').value.toLowerCase();
+            document.getElementById('students-tbody').innerHTML = students.filter(s => s.name.toLowerCase().includes(query) || s.roll.toLowerCase().includes(query)).map(s => `
+                <tr class="hover:bg-blueTint/50"><td class="p-4 font-bold text-royalBlue">${s.roll}</td><td class="p-4 font-semibold">${s.name}</td><td class="p-4 text-slate-600">${s.father}</td><td class="p-4 text-slate-600">${s.cnic}</td><td class="p-4 font-bold text-royalBlue">${s.grade}</td><td class="p-4 text-right"><button onclick="deleteStudent('${s.id}')" class="p-2 bg-blueTint text-royalBlue rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>
+            `).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">No students found.</td></tr>`;
+            lucide.createIcons();
+        }
+
+        function populateGradeDropdowns() {
+            document.getElementById('student-grade').innerHTML = Array.from({length: 12}, (_, i) => `<option value="Grade ${i+1}">Grade ${i+1}</option>`).join('');
+        }
+
+        function openStudentModal() { document.getElementById('student-modal').classList.remove('hidden'); document.getElementById('student-modal').classList.add('flex'); }
+        function closeStudentModal() { document.getElementById('student-modal').classList.add('hidden'); document.getElementById('student-modal').classList.remove('flex'); }
+        function handleStudentSubmit(e) {
+            e.preventDefault();
+            students.push({
+                id: Date.now().toString(),
+                roll: document.getElementById('student-roll').value,
+                grade: document.getElementById('student-grade').value,
+                name: document.getElementById('student-name').value,
+                father: document.getElementById('student-father').value,
+                cnic: document.getElementById('student-cnic').value,
+                password: document.getElementById('student-password').value
+            });
+            saveData(); closeStudentModal(); renderStudents(); showToast('Student added!');
+        }
+        function deleteStudent(id) { students = students.filter(s => s.id !== id); saveData(); renderStudents(); showToast('Student removed.'); }
+
+        function renderTeachers() {
+            const query = document.getElementById('teacher-search').value.toLowerCase();
+            document.getElementById('teachers-tbody').innerHTML = teachers.filter(t => t.name.toLowerCase().includes(query)).map(t => `
+                <tr class="hover:bg-blueTint/50"><td class="p-4 font-bold text-royalBlue">${t.teacherId}</td><td class="p-4 font-semibold">${t.name}</td><td class="p-4 text-slate-600">${t.father}</td><td class="p-4 text-slate-600">${t.cnic}</td><td class="p-4 font-semibold text-royalBlue">Active</td><td class="p-4 text-right"><button onclick="deleteTeacher('${t.id}')" class="p-2 bg-blueTint text-royalBlue rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>
+            `).join('') || `<tr><td colspan="6" class="p-6 text-center text-slate-400">No teachers found.</td></tr>`;
+            lucide.createIcons();
+        }
+
+        function openTeacherModal() { document.getElementById('teacher-modal').classList.remove('hidden'); document.getElementById('teacher-modal').classList.add('flex'); }
+        function closeTeacherModal() { document.getElementById('teacher-modal').classList.add('hidden'); document.getElementById('teacher-modal').classList.remove('flex'); }
+        function handleTeacherSubmit(e) {
+            e.preventDefault();
+            teachers.push({
+                id: Date.now().toString(),
+                teacherId: document.getElementById('teacher-id').value,
+                name: document.getElementById('teacher-name').value,
+                father: document.getElementById('teacher-father').value,
+                cnic: document.getElementById('teacher-cnic').value,
+                password: document.getElementById('teacher-password').value,
+                classTeacherOf: ''
+            });
+            saveData(); closeTeacherModal(); renderTeachers(); showToast('Teacher added!');
+        }
+        function deleteTeacher(id) { teachers = teachers.filter(t => t.id !== id); saveData(); renderTeachers(); showToast('Teacher removed.'); }
+
+        function loadAttendanceRegister() {
+            const session = JSON.parse(sessionStorage.getItem('smartschool_v2_session'));
+            const date = document.getElementById('attendance-date').value;
+            let list = session.role === 'Student' ? students.filter(s => s.id === session.id) : students;
+            document.getElementById('attendance-tbody').innerHTML = list.map(s => {
+                const existing = attendanceRecords.find(r => r.date === date && r.studentId === s.id);
+                const status = existing ? existing.status : 'Present';
+                return `<tr class="hover:bg-blueTint/50"><td class="p-4 font-bold text-royalBlue">${s.roll}</td><td class="p-4 font-semibold">${s.name}</td><td class="p-4 font-bold text-royalBlue">${s.grade}</td><td class="p-4 text-center">${session.role === 'Student' ? status : `<div class="inline-flex rounded-xl bg-blueTint p-1 space-x-1"><button onclick="setAtt('${s.id}', 'Present')" id="p-${s.id}" class="px-3 py-1 rounded font-bold text-xs ${status==='Present'?'bg-royalBlue text-white':'text-royalBlue'}">Present</button><button onclick="setAtt('${s.id}', 'Absent')" id="a-${s.id}" class="px-3 py-1 rounded font-bold text-xs ${status==='Absent'?'bg-royalBlue text-white':'text-royalBlue'}">Absent</button></div>`}</td></tr>`;
+            }).join('');
+        }
+
+        function setAtt(id, status) {
+            document.getElementById(`p-${id}`).className = `px-3 py-1 rounded font-bold text-xs ${status==='Present'?'bg-royalBlue text-white':'text-royalBlue'}`;
+            document.getElementById(`a-${id}`).className = `px-3 py-1 rounded font-bold text-xs ${status==='Absent'?'bg-royalBlue text-white':'text-royalBlue'}`;
+        }
+
+        function saveAttendance() {
+            const date = document.getElementById('attendance-date').value;
+            attendanceRecords = attendanceRecords.filter(r => r.date !== date);
+            students.forEach(s => {
+                const btn = document.getElementById(`p-${s.id}`);
+                if (btn) attendanceRecords.push({ id: `${date}-${s.id}`, date, studentId: s.id, status: btn.classList.contains('bg-royalBlue') ? 'Present' : 'Absent' });
+            });
+            saveData(); showToast('Attendance saved!');
+        }
+
+        function renderMarks() {
+            const session = JSON.parse(sessionStorage.getItem('smartschool_v2_session'));
+            let list = session.role === 'Student' ? marksRecords.filter(m => m.studentId === session.id) : marksRecords;
+            document.getElementById('marks-tbody').innerHTML = list.map(m => {
+                const s = students.find(st => st.id === m.studentId);
+                return `<tr class="hover:bg-blueTint/50"><td class="p-4 font-semibold">${s ? s.name : ''}</td><td class="p-4 font-bold text-royalBlue">${m.subject}</td><td class="p-4">${m.exam}</td><td class="p-4 font-bold text-royalBlue">${m.obtained}/${m.total}</td><td class="p-4">${m.percentage}%</td><td class="p-4"><span class="px-2 py-1 bg-royalBlue text-white rounded text-xs font-bold">${m.grade}</span></td><td class="p-4 text-right">${session.role !== 'Student' ? `<button onclick="deleteMark('${m.id}')" class="p-2 bg-blueTint text-royalBlue rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</td></tr>`;
+            }).join('') || `<tr><td colspan="7" class="p-6 text-center text-slate-400">No records found.</td></tr>`;
+            lucide.createIcons();
+        }
+
+        function openMarkModal() {
+            document.getElementById('mark-student-id').innerHTML = students.map(s => `<option value="${s.id}">${s.roll} - ${s.name}</option>`).join('');
+            document.getElementById('mark-subject').innerHTML = ["Sindhi", "English", "Urdu", "Mathematics", "Computer Science", "Physics", "Chemistry"].map(sub => `<option value="${sub}">${sub}</option>`).join('');
+            document.getElementById('mark-modal').classList.remove('hidden'); document.getElementById('mark-modal').classList.add('flex');
+        }
+        function closeMarkModal() { document.getElementById('mark-modal').classList.add('hidden'); document.getElementById('mark-modal').classList.remove('flex'); }
+        function handleMarkSubmit(e) {
+            e.preventDefault();
+            const obtained = parseFloat(document.getElementById('mark-obtained').value);
+            const total = parseFloat(document.getElementById('mark-total').value);
+            const percentage = Math.round((obtained / total) * 100);
+            marksRecords.push({ id: Date.now().toString(), studentId: document.getElementById('mark-student-id').value, subject: document.getElementById('mark-subject').value, exam: document.getElementById('mark-exam').value, obtained, total, percentage, grade: percentage >= 80 ? 'A+' : 'B' });
+            saveData(); closeMarkModal(); renderMarks(); showToast('Result saved!');
+        }
+        function deleteMark(id) { marksRecords = marksRecords.filter(m => m.id !== id); saveData(); renderMarks(); showToast('Result deleted.'); }
+
+        function renderReports() {
+            document.getElementById('report-timestamp').textContent = `Generated: ${new Date().toLocaleDateString()}`;
+            document.getElementById('report-students-tbody').innerHTML = students.map(s => `<tr class="border-b border-blueBorder"><td class="p-3 font-bold text-royalBlue">${s.roll}</td><td class="p-3">${s.name}</td><td class="p-3">${s.father}</td><td class="p-3">${s.cnic}</td><td class="p-3">${s.grade}</td></tr>`).join('');
+        }
+        function printReport() { window.print(); }
+        function exportCSV() {
+            let csv = "Roll,Name,Father Name,CNIC,Grade\n" + students.map(s => `"${s.roll}","${s.name}","${s.father}","${s.cnic}","${s.grade}"`).join("\n");
+            const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv); link.download = "report.csv"; link.click();
+            showToast('CSV exported successfully!');
+        }
+
+        window.onload = () => initAppSession();
+    </script>
+</body>
+</html>
