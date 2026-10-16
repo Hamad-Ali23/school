@@ -51,6 +51,90 @@
             background: #2457D6;
             border-radius: 3px;
         }
+
+        /* Responsive improvements: layout and navigation only */
+        html { -webkit-text-size-adjust: 100%; }
+        body { min-width: 320px; overflow-x: hidden; }
+        button, input, select, textarea { max-width: 100%; }
+        #app-wrapper { min-height: 100dvh; height: 100dvh; }
+        #sidebar { height: 100dvh; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+        #sidebar-nav { min-height: 0; }
+        #toast-container { left: 1rem; right: 1rem; top: 1rem; }
+        #toast-container > div { max-width: 100%; overflow-wrap: anywhere; }
+        #modal-backdrop { overflow-y: auto; align-items: flex-start; }
+        #modal-box { max-height: calc(100dvh - 2rem); overflow-y: auto; margin: auto; }
+        main { min-width: 0; }
+        main section, main section > div { min-width: 0; }
+        table { min-width: 600px; }
+        #sidebar-overlay { display: none; }
+
+        @media (max-width: 1023px) {
+            #app-wrapper { height: 100dvh; min-height: 100dvh; }
+            #sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                width: min(84vw, 320px);
+                height: 100dvh;
+                max-height: 100dvh;
+                transform: translateX(-105%);
+                z-index: 60;
+                box-shadow: 12px 0 32px rgba(15, 23, 42, .14);
+            }
+            #sidebar.sidebar-open { transform: translateX(0); }
+            #sidebar-overlay.overlay-open {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: 50;
+                background: rgba(15, 23, 42, .48);
+                touch-action: manipulation;
+            }
+            #sidebar { transition: transform .25s ease; }
+            #sidebar.sidebar-open { visibility: visible; }
+            #sidebar:not(.sidebar-open) { visibility: hidden; }
+            #app-wrapper > .flex-1 { width: 100%; min-width: 0; }
+            header { min-height: 64px; height: auto !important; padding: .75rem 1rem !important; gap: .75rem; }
+            #page-title { font-size: clamp(1rem, 4vw, 1.35rem); overflow-wrap: anywhere; }
+            main { padding: 1rem !important; }
+            #user-profile-banner { padding: 1rem !important; }
+            main .p-6 { padding: 1rem; }
+            #report-preview-card { padding: 1rem !important; }
+            #report-preview-card h2 { font-size: 1.15rem; }
+            #modal-backdrop { padding: .5rem; }
+            #modal-box { width: 100%; max-width: 34rem; max-height: calc(100dvh - 1rem); border-radius: 1rem; }
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+        }
+
+        @media (max-width: 640px) {
+            #auth-wrapper { padding: .75rem; margin-top: .75rem; margin-bottom: .75rem; }
+            #auth-wrapper > div { border-radius: 1.25rem; }
+            #auth-wrapper .p-8 { padding: 1.1rem; }
+            #auth-wrapper .bg-royalBlue.p-8 { padding: 1.5rem 1rem; }
+            #auth-wrapper h1 { font-size: 1.35rem; line-height: 1.35; }
+            #auth-wrapper .bg-blueTint.p-6 { padding: 1rem; }
+            #auth-wrapper input, #auth-wrapper select { font-size: 16px; }
+            #user-display-name, #user-display-role { display: none; }
+            #user-avatar-initial { font-size: .9rem; }
+            header .space-x-4 { gap: .5rem; }
+            main { padding: .75rem !important; gap: 1rem !important; }
+            main .p-6, main .p-8 { padding: .9rem; }
+            main h2 { overflow-wrap: anywhere; }
+            main .text-lg { font-size: 1rem; line-height: 1.45; }
+            main .flex.items-center.justify-between { flex-wrap: wrap; }
+            main input, main select, main textarea { min-width: 0; max-width: 100%; }
+            #teacher-attendance-date, #attendance-date { width: 100%; }
+            #teacher-attendance-date + button, #attendance-date + button { width: 100%; justify-content: center; }
+            #banner-details-chips { width: 100%; }
+            #banner-name { overflow-wrap: anywhere; }
+            #subject-tickets-grid { grid-template-columns: minmax(0, 1fr); }
+            #toast-container { left: .5rem; right: .5rem; top: .5rem; }
+            #modal-box .grid.grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+            #modal-box .p-6, #modal-box .p-8 { padding: 1rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #sidebar { transition: none !important; }
+        }
     </style>
 </head>
 <body class="bg-blueTint min-h-screen flex flex-col font-nunito">
@@ -126,6 +210,9 @@
     <!-- MAIN APP WRAPPER -->
     <div id="app-wrapper" class="hidden flex-1 flex h-screen overflow-hidden">
         
+        <!-- Mobile sidebar backdrop -->
+        <div id="sidebar-overlay" onclick="closeSidebar()" aria-hidden="true"></div>
+
         <!-- SIDEBAR -->
         <aside id="sidebar" class="w-64 bg-white border-r border-blueBorder flex flex-col transition-all duration-300 z-30 fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0">
             <div class="h-20 flex items-center px-6 border-b border-blueBorder bg-blueTint">
@@ -818,8 +905,55 @@
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            const isOpen = sidebar.classList.contains('sidebar-open');
+            if (isOpen) {
+                closeSidebar();
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('sidebar-open');
+                document.getElementById('sidebar-overlay').classList.add('overlay-open');
+                document.body.style.overflow = 'hidden';
+                const menuButton = document.querySelector('header button[onclick="toggleSidebar()"]');
+                if (menuButton) menuButton.setAttribute('aria-expanded', 'true');
+            }
         }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+            sidebar.classList.remove('sidebar-open');
+            sidebar.classList.add('-translate-x-full');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (overlay) overlay.classList.remove('overlay-open');
+            document.body.style.overflow = '';
+            const menuButton = document.querySelector('header button[onclick="toggleSidebar()"]');
+            if (menuButton) menuButton.setAttribute('aria-expanded', 'false');
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('sidebar-open');
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.style.visibility = '';
+                }
+                const overlay = document.getElementById('sidebar-overlay');
+                if (overlay) overlay.classList.remove('overlay-open');
+                document.body.style.overflow = '';
+            } else {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar && !sidebar.classList.contains('sidebar-open')) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+        });
 
         // App Initialization & Role-based Navigation Builder
         function initApp() {
@@ -903,6 +1037,7 @@
         }
 
         function switchView(viewId) {
+            if (window.innerWidth < 1024) closeSidebar();
             ['dashboard', 'announcements', 'students', 'teachers', 'assignments', 'teacher-attendance', 'attendance', 'marks', 'reports'].forEach(id => {
                 const el = document.getElementById(`view-${id}`);
                 if (el) el.classList.add('hidden');
