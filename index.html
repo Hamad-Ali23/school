@@ -81,7 +81,7 @@
                     </button>
                     <button onclick="fillQuickLogin('Teacher', 'TCH-101', 'teacher123')" class="p-2.5 bg-white border border-blueBorder hover:bg-royalBlue hover:text-white rounded-xl text-xs font-bold text-royalBlue transition-all shadow-sm flex flex-col items-center justify-center text-center">
                         <i data-lucide="user-check" class="w-4 h-4 mb-1"></i>
-                        <span>Sir Kamran (TCH-101)</span>
+                        <span>Sir Kamran (Grade 12)</span>
                     </button>
                     <button onclick="fillQuickLogin('Student', 'STD-112', 'student123')" class="p-2.5 bg-white border border-blueBorder hover:bg-royalBlue hover:text-white rounded-xl text-xs font-bold text-royalBlue transition-all shadow-sm flex flex-col items-center justify-center text-center">
                         <i data-lucide="graduation-cap" class="w-4 h-4 mb-1"></i>
@@ -255,17 +255,37 @@
                     </div>
                 </section>
 
-                <!-- 2. STUDENT MANAGEMENT VIEW -->
+                <!-- DEDICATED ANNOUNCEMENTS VIEW (FOR TEACHERS & STUDENTS) -->
+                <section id="view-announcements" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder space-y-4">
+                        <div class="flex items-center justify-between border-b border-blueBorder pb-4">
+                            <h2 class="text-lg font-bold font-poppins text-royalBlue flex items-center space-x-2">
+                                <i data-lucide="megaphone" class="w-6 h-6"></i>
+                                <span>Official School Announcements</span>
+                            </h2>
+                            <span class="text-xs bg-blueSoft text-royalBlue px-3 py-1 font-bold rounded-full border border-blueBorder">Official Broadcast</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Stay updated with official notices, circulars, and exam schedules posted by the school administration.</p>
+                        <div id="dedicated-announcements-feed" class="space-y-4 pt-2"></div>
+                    </div>
+                </section>
+
+                <!-- 2. STUDENT MANAGEMENT VIEW (RESTRICTED FOR TEACHERS) -->
                 <section id="view-students" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder flex flex-col md:flex-row items-center justify-between gap-4">
                         <div class="w-full md:w-96 relative">
                             <i data-lucide="search" class="w-5 h-5 text-royalBlue absolute left-4 top-3.5"></i>
                             <input type="text" id="student-search" oninput="renderStudents()" placeholder="Search by name, roll, grade or CNIC..." class="w-full pl-12 pr-4 py-3 bg-blueTint border border-blueBorder rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-royalBlue text-sm">
                         </div>
-                        <button onclick="openStudentModal()" class="w-full md:w-auto px-6 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm">
+                        <button id="btn-add-student" onclick="openStudentModal()" class="w-full md:w-auto px-6 py-3 bg-royalBlue hover:bg-blueHover text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm">
                             <i data-lucide="user-plus" class="w-5 h-5"></i>
                             <span>Add New Student</span>
                         </button>
+                    </div>
+
+                    <div id="teacher-assigned-class-banner" class="hidden bg-blueSoft p-4 rounded-xl border border-blueBorder text-xs text-royalBlue font-bold flex items-center justify-between">
+                        <span id="teacher-assigned-class-text">Assigned Class Directory</span>
+                        <span class="bg-royalBlue text-white px-2.5 py-1 rounded-full font-extrabold">Confidential Class List</span>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-sm border border-blueBorder overflow-hidden">
@@ -421,7 +441,7 @@
                         </div>
                     </div>
 
-                    <!-- TEACHER ATTENDANCE SUMMARY TABLE (Categorized by Present, Absent, Leave) -->
+                    <!-- TEACHER ATTENDANCE SUMMARY TABLE -->
                     <div id="teacher-attendance-summary-card" class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder space-y-4">
                         <div class="flex items-center justify-between border-b border-blueBorder pb-3">
                             <h3 class="text-base font-bold font-poppins text-royalBlue flex items-center space-x-2">
@@ -502,6 +522,55 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- STUDENT ATTENDANCE SUMMARY TABLE (FOR TEACHERS) -->
+                    <div id="student-attendance-summary-card" class="bg-white p-6 rounded-2xl shadow-sm border border-blueBorder space-y-4">
+                        <div class="flex items-center justify-between border-b border-blueBorder pb-3">
+                            <h3 class="text-base font-bold font-poppins text-royalBlue flex items-center space-x-2">
+                                <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+                                <span>Class Student Attendance Summary Table</span>
+                            </h3>
+                            <span id="std-summary-date-badge" class="px-3 py-1 bg-blueTint border border-blueBorder text-royalBlue font-bold text-xs rounded-full">Date: Today</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Present Students Table -->
+                            <div class="bg-green-50/60 p-4 rounded-2xl border border-green-200 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-xs uppercase tracking-wider text-green-700 flex items-center space-x-1.5">
+                                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                        <span>Present Students</span>
+                                    </h4>
+                                    <span id="std-count-present" class="px-2 py-0.5 bg-green-600 text-white font-bold text-xs rounded-full">0</span>
+                                </div>
+                                <div id="std-summary-present-list" class="space-y-1.5 text-xs text-green-900"></div>
+                            </div>
+
+                            <!-- Absent Students Table -->
+                            <div class="bg-red-50/60 p-4 rounded-2xl border border-red-200 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-xs uppercase tracking-wider text-red-700 flex items-center space-x-1.5">
+                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                        <span>Absent Students</span>
+                                    </h4>
+                                    <span id="std-count-absent" class="px-2 py-0.5 bg-red-600 text-white font-bold text-xs rounded-full">0</span>
+                                </div>
+                                <div id="std-summary-absent-list" class="space-y-1.5 text-xs text-red-900"></div>
+                            </div>
+
+                            <!-- Leave Students Table -->
+                            <div class="bg-amber-50/60 p-4 rounded-2xl border border-amber-200 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-xs uppercase tracking-wider text-amber-700 flex items-center space-x-1.5">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                        <span>On Leave Students</span>
+                                    </h4>
+                                    <span id="std-count-leave" class="px-2 py-0.5 bg-amber-600 text-white font-bold text-xs rounded-full">0</span>
+                                </div>
+                                <div id="std-summary-leave-list" class="space-y-1.5 text-xs text-amber-900"></div>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 <!-- 7. MARKS AND RESULTS VIEW -->
@@ -578,7 +647,7 @@
     <!-- APPLICATION SCRIPT -->
     <script>
         // Core State & Local Storage Initialization
-        const DB_KEY = "SMART_SCHOOL_SYSTEM_DATA_V4";
+        const DB_KEY = "SMART_SCHOOL_SYSTEM_DATA_V5";
         
         const defaultData = {
             currentUser: null,
@@ -787,7 +856,8 @@
                 document.getElementById('btn-add-announcement').classList.remove('hidden');
             } else if (role === 'Teacher') {
                 links.push(
-                    { id: 'students', label: 'Students List', icon: 'users' },
+                    { id: 'announcements', label: 'Announcements', icon: 'megaphone' },
+                    { id: 'students', label: 'My Class Students', icon: 'users' },
                     { id: 'attendance', label: 'Student Attendance', icon: 'calendar-check' },
                     { id: 'marks', label: 'Exams & Marks Entry', icon: 'award' },
                     { id: 'reports', label: 'Reports', icon: 'file-text' }
@@ -795,6 +865,7 @@
                 document.getElementById('btn-add-announcement').classList.add('hidden');
             } else if (role === 'Student') {
                 links.push(
+                    { id: 'announcements', label: 'School Announcements', icon: 'megaphone' },
                     { id: 'attendance', label: 'My Attendance', icon: 'calendar-check' },
                     { id: 'marks', label: 'My Exam Results', icon: 'award' },
                     { id: 'reports', label: 'My Transcript', icon: 'file-text' }
@@ -832,7 +903,7 @@
         }
 
         function switchView(viewId) {
-            ['dashboard', 'students', 'teachers', 'assignments', 'teacher-attendance', 'attendance', 'marks', 'reports'].forEach(id => {
+            ['dashboard', 'announcements', 'students', 'teachers', 'assignments', 'teacher-attendance', 'attendance', 'marks', 'reports'].forEach(id => {
                 const el = document.getElementById(`view-${id}`);
                 if (el) el.classList.add('hidden');
                 const btn = document.getElementById(`nav-btn-${id}`);
@@ -848,6 +919,7 @@
 
             // Render view data
             if (viewId === 'dashboard') renderDashboard();
+            if (viewId === 'announcements') renderDedicatedAnnouncements();
             if (viewId === 'students') renderStudents();
             if (viewId === 'teachers') renderTeachers();
             if (viewId === 'assignments') initAssignmentsModule();
@@ -885,13 +957,64 @@
             `).join('');
         }
 
-        // 2. Students Directory Renderer
+        // DEDICATED ANNOUNCEMENTS RENDERER
+        function renderDedicatedAnnouncements() {
+            const feed = document.getElementById('dedicated-announcements-feed');
+            if (appData.announcements.length === 0) {
+                feed.innerHTML = `<p class="text-xs text-slate-500 italic p-4 text-center">No announcements posted yet.</p>`;
+                return;
+            }
+            feed.innerHTML = appData.announcements.map(a => `
+                <div class="p-5 bg-blueTint rounded-2xl border border-blueBorder space-y-2">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold font-poppins text-royalBlue text-base flex items-center space-x-2">
+                            <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                            <span>${a.title}</span>
+                        </h3>
+                        <span class="text-xs bg-white text-royalBlue px-3 py-1 font-bold rounded-full border border-blueBorder">${a.date}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed pt-1">${a.content}</p>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // 2. Students Directory Renderer (Strict Class Restriction for Teachers)
         function renderStudents() {
+            const user = appData.currentUser;
             const query = (document.getElementById('student-search').value || '').toLowerCase();
             const tbody = document.getElementById('students-tbody');
-            const filtered = appData.students.filter(s => 
+            const btnAddStudent = document.getElementById('btn-add-student');
+            const classBanner = document.getElementById('teacher-assigned-class-banner');
+
+            let studentList = appData.students;
+
+            if (user.role === 'Teacher') {
+                btnAddStudent.classList.add('hidden');
+                classBanner.classList.remove('hidden');
+                const assignedClass = user.classTeacherOf;
+
+                if (!assignedClass) {
+                    document.getElementById('teacher-assigned-class-text').innerText = "Notice: You are not assigned as Class Teacher for any grade yet.";
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-semibold">You have not been assigned as a Class Teacher to any class by Admin yet.</td></tr>`;
+                    return;
+                }
+
+                document.getElementById('teacher-assigned-class-text').innerText = `Class Directory for ${assignedClass} (Only your students are displayed)`;
+                studentList = appData.students.filter(s => s.grade === assignedClass);
+            } else {
+                btnAddStudent.classList.remove('hidden');
+                classBanner.classList.add('hidden');
+            }
+
+            const filtered = studentList.filter(s => 
                 s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query) || s.grade.toLowerCase().includes(query) || s.cnic.toLowerCase().includes(query)
             );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-semibold">No students found for the current search query.</td></tr>`;
+                return;
+            }
 
             tbody.innerHTML = filtered.map(s => `
                 <tr class="hover:bg-blueTint transition-all">
@@ -1013,7 +1136,7 @@
             renderSubjectConflictGrid();
         }
 
-        // 5. TEACHER ATTENDANCE REGISTER MODULE (WITH CATEGORIZED SUMMARY TABLE)
+        // 5. TEACHER ATTENDANCE REGISTER MODULE (ADMIN ONLY)
         function initTeacherAttendanceRegister() {
             const today = new Date().toISOString().split('T')[0];
             const dateInput = document.getElementById('teacher-attendance-date');
@@ -1123,7 +1246,10 @@
 
             if (studentsList.length === 0 && user.role === 'Teacher') {
                 tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500 font-semibold">You are not designated as a Class Teacher for any grade yet. Admin must assign you a class in Subject Assignments.</td></tr>`;
+                document.getElementById('student-attendance-summary-card').classList.add('hidden');
                 return;
+            } else {
+                document.getElementById('student-attendance-summary-card').classList.remove('hidden');
             }
 
             tbody.innerHTML = studentsList.map(s => {
@@ -1136,14 +1262,17 @@
                         <td class="p-4 text-center">
                             ${appData.currentUser.role !== 'Student' ? `
                                 <div class="inline-flex rounded-xl bg-blueTint p-1 border border-blueBorder space-x-1">
-                                    <button type="button" onclick="setAttStatus('${date}', '${s.id}', 'Present')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${status === 'Present' ? 'bg-royalBlue text-white shadow-sm' : 'text-slate-600 hover:text-royalBlue'}">Present</button>
-                                    <button type="button" onclick="setAttStatus('${date}', '${s.id}', 'Absent')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${status === 'Absent' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-600 hover:text-red-500'}">Absent</button>
+                                    <button type="button" onclick="setAttStatus('${date}', '${s.id}', 'Present')" class="px-3 py-1 rounded-lg text-xs font-bold transition-all ${status === 'Present' ? 'bg-royalBlue text-white shadow-sm' : 'text-slate-600 hover:text-royalBlue'}">Present</button>
+                                    <button type="button" onclick="setAttStatus('${date}', '${s.id}', 'Absent')" class="px-3 py-1 rounded-lg text-xs font-bold transition-all ${status === 'Absent' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-600 hover:text-red-500'}">Absent</button>
+                                    <button type="button" onclick="setAttStatus('${date}', '${s.id}', 'Leave')" class="px-3 py-1 rounded-lg text-xs font-bold transition-all ${status === 'Leave' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-600 hover:text-amber-500'}">Leave</button>
                                 </div>
-                            ` : `<span class="px-3 py-1 rounded-full text-xs font-bold ${status === 'Present' ? 'bg-royalBlue text-white' : 'bg-red-500 text-white'}">${status}</span>`}
+                            ` : `<span class="px-3 py-1 rounded-full text-xs font-bold ${status === 'Present' ? 'bg-royalBlue text-white' : status === 'Absent' ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'}">${status}</span>`}
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            renderStudentAttendanceSummaryTable(date, studentsList);
         }
 
         function setAttStatus(date, studentId, status) {
@@ -1152,9 +1281,48 @@
             loadAttendanceRegister();
         }
 
+        function renderStudentAttendanceSummaryTable(date, targetStudents) {
+            document.getElementById('std-summary-date-badge').innerText = `Date: ${date}`;
+            const dayAtt = appData.attendance[date] || {};
+
+            let presentArr = [];
+            let absentArr = [];
+            let leaveArr = [];
+
+            targetStudents.forEach(s => {
+                const status = dayAtt[s.id] || 'Present';
+                if (status === 'Present') presentArr.push(s);
+                else if (status === 'Absent') absentArr.push(s);
+                else if (status === 'Leave') leaveArr.push(s);
+            });
+
+            document.getElementById('std-count-present').innerText = presentArr.length;
+            document.getElementById('std-count-absent').innerText = absentArr.length;
+            document.getElementById('std-count-leave').innerText = leaveArr.length;
+
+            document.getElementById('std-summary-present-list').innerHTML = presentArr.length > 0 
+                ? presentArr.map(s => `<div class="p-2 bg-white rounded-lg border border-green-200 font-semibold flex items-center justify-between"><span>${s.name}</span> <span class="text-[10px] bg-green-100 px-2 py-0.5 rounded font-bold">${s.id}</span></div>`).join('') 
+                : '<p class="text-[11px] text-slate-400 italic">No students present</p>';
+
+            document.getElementById('std-summary-absent-list').innerHTML = absentArr.length > 0 
+                ? absentArr.map(s => `<div class="p-2 bg-white rounded-lg border border-red-200 font-semibold flex items-center justify-between"><span>${s.name}</span> <span class="text-[10px] bg-red-100 px-2 py-0.5 rounded font-bold">${s.id}</span></div>`).join('') 
+                : '<p class="text-[11px] text-slate-400 italic">No students absent</p>';
+
+            document.getElementById('std-summary-leave-list').innerHTML = leaveArr.length > 0 
+                ? leaveArr.map(s => `<div class="p-2 bg-white rounded-lg border border-amber-200 font-semibold flex items-center justify-between"><span>${s.name}</span> <span class="text-[10px] bg-amber-100 px-2 py-0.5 rounded font-bold">${s.id}</span></div>`).join('') 
+                : '<p class="text-[11px] text-slate-400 italic">No students on leave</p>';
+
+            lucide.createIcons();
+        }
+
         function saveAttendance() {
             saveData();
             showToast('Student attendance register saved successfully!');
+            const date = document.getElementById('attendance-date').value;
+            const user = appData.currentUser;
+            let studentsList = appData.students;
+            if (user.role === 'Teacher') studentsList = appData.students.filter(s => s.grade === user.classTeacherOf);
+            renderStudentAttendanceSummaryTable(date, studentsList);
         }
 
         // 7. Marks and Results Module
